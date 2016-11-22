@@ -1,6 +1,8 @@
 package com.example.diego.i_review;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> list;
@@ -140,5 +143,22 @@ public class MainActivity extends AppCompatActivity {
         });
         dlg.setNegativeButton("No", null);
         dlg.create().show();
+    }
+
+
+    public void onPause(){
+        super.onPause();
+        SharedPreferences.Editor saver = this.getPreferences( Context.MODE_PRIVATE ).edit();
+        saver.putStringSet( "list", new HashSet<String>( this.list ) );
+        saver.apply();
+    }
+
+
+    public void OnResume(){
+        super.onResume();
+        SharedPreferences loader = this.getPreferences( Context.MODE_PRIVATE );
+        this.list.clear();
+        this.list.addAll( loader.getStringSet( "list", new HashSet<String>() ) );
+        this.listAdapter.notifyDataSetChanged();
     }
 }

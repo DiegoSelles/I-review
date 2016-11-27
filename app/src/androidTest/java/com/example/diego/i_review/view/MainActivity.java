@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.example.diego.i_review.Core.Serie;
 import com.example.diego.i_review.R;
 
 import java.util.ArrayList;
@@ -23,22 +24,25 @@ import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> list;
-    private ArrayAdapter<String> listAdapter;
+    private ArrayAdapter<Serie> listAdapter;
+    private SeriesApp app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
+        this.app = (SeriesApp) this.getApplication();
+
         Button btAdd = (Button) this.findViewById(R.id.btadd);
         final ListView listSeries = (ListView) this.findViewById(R.id.listSeries);
+
         this.list = new ArrayList<String>();
-        this.listAdapter = new ArrayAdapter<String>(
+        this.listAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_selectable_list_item,
-                this.list
+                app.getListaSeries()
         );
-
 
 
         listSeries.setAdapter(this.listAdapter);
@@ -113,9 +117,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 final String text = edText.getText().toString();
-
-                MainActivity.this.listAdapter.add( text );
-               // MainActivity.this.updateStatus();
+                app.insertarSerie( text );
             }
         });
         builder.setNegativeButton("Cancel", null);
@@ -143,14 +145,17 @@ public class MainActivity extends AppCompatActivity {
 
     //Funcion que elimina una serie
     private void remove(final int position){
-        AlertDialog.Builder dlg = new AlertDialog.Builder(this);
+        final AlertDialog.Builder dlg = new AlertDialog.Builder(this);
         dlg.setMessage("¿Quiere borrar esta serie?");
         dlg.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if( position >= 0) {
-                    MainActivity.this.list.remove(position);
-                    MainActivity.this.listAdapter.notifyDataSetChanged();
+                    app.eliminarSerie(position);
+                   /* MainActivity.this.list.remove(position);
+                    MainActivity.this.listAdapter.notifyDataSetChanged();*/
+                }else{
+                    dlg.setMessage("No se pudo borrar");
                 }
             }
         });

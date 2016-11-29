@@ -21,11 +21,13 @@ import com.example.diego.i_review.R;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> list;
     private ArrayAdapter<Serie> listAdapter;
     private SeriesApp app;
+    //private Serie serie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +49,19 @@ public class MainActivity extends AppCompatActivity {
 
         listSeries.setAdapter(this.listAdapter);
 
-        listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+       /* listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> v1, View v, int op, long x) {
                 MainActivity.this.startActivity(new Intent(MainActivity.this,SeriesActivity.class));
             }
-        });
+        });*/
 
         listSeries.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                MainActivity.this.setLista(position);
+                // MainActivity.this.setLista(position,view.getId()); // ERROR: ese id no es el que buscas
+                Serie serie = app.getListaSeries().get( position );
+                MainActivity.this.setLista(position, serie.getId() );
                 return false;
             }
         });
@@ -71,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //Crea el mneu cuando se pulse en la opcion
+    //Crea el menu cuando se pulse en la opcion
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
         this.getMenuInflater().inflate( R.menu.main_menu, menu);
@@ -88,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Funcion que muestra dos opciones y las llama segun cual eligas(modificar serie o eliminar serie)
-    public void setLista(final int position){
+    public void setLista(final int position, final int id){
         AlertDialog.Builder dlg = new AlertDialog.Builder(this);
         dlg.setMessage("¿Que desea hacer?");
         dlg.setPositiveButton("Modificar", new DialogInterface.OnClickListener() {
@@ -100,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         dlg.setNegativeButton("Eliminar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MainActivity.this.remove(position);
+                MainActivity.this.remove(position,id);
             }
         });
         dlg.create().show();
@@ -118,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 final String text = edText.getText().toString();
                 app.insertarSerie( text );
+                MainActivity.this.listAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("Cancel", null);
@@ -144,16 +149,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Funcion que elimina una serie
-    private void remove(final int position){
+    private void remove(final int position,final int id){
         final AlertDialog.Builder dlg = new AlertDialog.Builder(this);
         dlg.setMessage("¿Quiere borrar esta serie?");
         dlg.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if( position >= 0) {
-                    app.eliminarSerie(position);
-                   /* MainActivity.this.list.remove(position);
-                    MainActivity.this.listAdapter.notifyDataSetChanged();*/
+                    app.eliminarSerie(id);
+                    //MainActivity.this.list.remove(position);
+                    MainActivity.this.listAdapter.notifyDataSetChanged();
                 }else{
                     dlg.setMessage("No se pudo borrar");
                 }

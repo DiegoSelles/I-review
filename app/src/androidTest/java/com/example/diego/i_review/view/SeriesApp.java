@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.example.diego.i_review.Core.Serie;
 import com.example.diego.i_review.Core.SqlIO;
@@ -44,15 +45,12 @@ public class SeriesApp extends Application {
 
         if ( cursor.moveToFirst() ) {
             do {
-                Serie serie = new Serie(/*cursor.getInt( 0 ),*/ cursor.getString( 1 )/*, cursor.getInt( 2 ) */);
-               // serie.setId(cursor.getInt(1));
-               // serie.setValoracion(cursor.getInt(1));
+                Serie serie = new Serie(cursor.getInt( 0 ), cursor.getString( 1 ));
                 this.series.add( serie );
             } while( cursor.moveToNext() );
 
             cursor.close();
         }
-
         return;
     }
 
@@ -61,7 +59,8 @@ public class SeriesApp extends Application {
         try{
             db.beginTransaction();
             db.execSQL("INSERT INTO serie(nombre) VALUES(?)",new String[]{nombre});
-            Serie serie = new Serie( nombre );
+
+            Serie serie = new Serie( getIdByNombre(nombre), nombre );
             this.series.add( serie );
             db.setTransactionSuccessful();
         }finally {
@@ -70,14 +69,26 @@ public class SeriesApp extends Application {
         return;
     }
 
-    public void eliminarSerie(int position){
+    public int getIdByNombre(String nombre){
+        SQLiteDatabase db = this.getDB();
+        int id = 0;
+        try{
+            Cursor cursor = db.rawQuery("SELECT id FROM serie WHERE nombre =?",new String[]{nombre});
+            id = cursor.getInt(0);
+        }catch(Exception e){
+            Log.i("Error",e.toString());
+        }
+        return id;
+
+
+    }
+    public void eliminarSerie(int id){
         this.leerBD();
         SQLiteDatabase db = this.getDB();
 
         try {
             db.beginTransaction();
-            String sql = "DELETE FROM serie WHERE id =' " + position + "'";
-            db.execSQL(sql);
+            db.execSQL("DELETE FROM serie WHERE id=?", new Integer[]{id});
             db.setTransactionSuccessful();
         }finally {
             db.endTransaction();

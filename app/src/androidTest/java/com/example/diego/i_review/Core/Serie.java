@@ -9,7 +9,7 @@ public class Serie {
     private String nombre;
     private int valoracion;
 
-    public Serie ( String nombre){
+    public Serie (int id, String nombre ){
         this.id = id;
         this.nombre = nombre;
         //this.valoracion = valoracion;
@@ -22,7 +22,7 @@ public class Serie {
     public int getValoracion() {return valoracion;}
 
     public String toString(){
-        return this.getNombre(); //+ ". Valoracion.:" + this.getValoracion();
+        return this.getNombre() + ". id.:" + this.getId();
     }
 
     public void setNombre(String nombre){

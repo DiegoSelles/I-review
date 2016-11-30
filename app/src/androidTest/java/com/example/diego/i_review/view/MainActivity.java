@@ -49,17 +49,16 @@ public class MainActivity extends AppCompatActivity {
 
         listSeries.setAdapter(this.listAdapter);
 
-       /* listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> v1, View v, int op, long x) {
                 MainActivity.this.startActivity(new Intent(MainActivity.this,SeriesActivity.class));
             }
-        });*/
+        });
 
         listSeries.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                // MainActivity.this.setLista(position,view.getId()); // ERROR: ese id no es el que buscas
                 Serie serie = app.getListaSeries().get( position );
                 MainActivity.this.setLista(position, serie.getId() );
                 return false;
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         dlg.setPositiveButton("Modificar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MainActivity.this.modify(position);
+                MainActivity.this.modify(position,id);
             }
         });
         dlg.setNegativeButton("Eliminar", new DialogInterface.OnClickListener() {
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Funcion que modifica el nombre de una serie
-    private void modify( final int position){
+    private void modify( final int position,final int id){
         final EditText edText = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Nombre");
@@ -140,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String text = edText.getText().toString();
-                list.set(position, text);
+                //list.set(position, text);
+                app.modificarSerie(id,text);
                 MainActivity.this.listAdapter.notifyDataSetChanged();
             }
         });

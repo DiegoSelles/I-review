@@ -82,6 +82,7 @@ public class SeriesApp extends Application {
 
 
     }
+
     public void eliminarSerie(int id){
         this.leerBD();
         SQLiteDatabase db = this.getDB();
@@ -95,4 +96,20 @@ public class SeriesApp extends Application {
         }
         return;
     }
+
+    public void modificarSerie(int id, String texto){
+        this.leerBD();
+        SQLiteDatabase db = this.getDB();
+
+        try{
+            db.beginTransaction();
+            db.execSQL("UPDATE Serie SET nombre ='" + texto + "' WHERE id=?", new Integer[]{id});
+            db.setTransactionSuccessful();
+
+        }finally {
+            db.endTransaction();
+        }
+        return;
+    }
+
 }

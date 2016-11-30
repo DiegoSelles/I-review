@@ -16,9 +16,9 @@
         android:layout_height="fill_parent">
 
         <ListView
-            android:id = "@+id/listSeries"
+            android:id = "@+id/listTemporadas"
             android:layout_width="fill_parent"
-            android:layout_height="403dp"
+            android:layout_height="380dp"
             android:layout_margin="5dp"
             android:choiceMode="singleChoice"/>
 

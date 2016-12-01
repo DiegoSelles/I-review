@@ -59,17 +59,15 @@ public class SeriesApp extends Application {
         try{
             db.beginTransaction();
             db.execSQL("INSERT INTO serie(nombre) VALUES(?)",new String[]{nombre});
-
-            Serie serie = new Serie( getIdByNombre(nombre), nombre );
-            this.series.add( serie );
             db.setTransactionSuccessful();
+            this.leerBD();
         }finally {
             db.endTransaction();
         }
         return;
     }
 
-    public int getIdByNombre(String nombre){
+    /*public int getIdByNombre(String nombre){
         SQLiteDatabase db = this.getDB();
         int id = 0;
         try{
@@ -79,9 +77,7 @@ public class SeriesApp extends Application {
             Log.i("Error",e.toString());
         }
         return id;
-
-
-    }
+    }*/
 
     public void eliminarSerie(int id){
         this.leerBD();
@@ -94,6 +90,7 @@ public class SeriesApp extends Application {
         }finally {
             db.endTransaction();
         }
+        this.leerBD();
         return;
     }
 
@@ -109,6 +106,7 @@ public class SeriesApp extends Application {
         }finally {
             db.endTransaction();
         }
+        this.leerBD();
         return;
     }
 

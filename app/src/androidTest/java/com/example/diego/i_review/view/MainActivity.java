@@ -139,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String text = edText.getText().toString();
-                //list.set(position, text);
                 app.modificarSerie(id,text);
                 MainActivity.this.listAdapter.notifyDataSetChanged();
             }
@@ -157,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if( position >= 0) {
                     app.eliminarSerie(id);
-                    //MainActivity.this.list.remove(position);
                     MainActivity.this.listAdapter.notifyDataSetChanged();
                 }else{
                     dlg.setMessage("No se pudo borrar");

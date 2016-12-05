@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.diego.i_review.Core.Serie;
 import com.example.diego.i_review.Core.SqlIO;
+import com.example.diego.i_review.Core.Temporada;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.List;
 public class SeriesApp extends Application {
     private SqlIO db;
     private List<Serie> series;
+    private List<Temporada> temporadas;
 
     @Override
     public void onCreate(){
         this.series = new ArrayList<>();
+        this.temporadas = new ArrayList<>();
         this.db = new SqlIO(this);
     }
 
@@ -33,11 +36,16 @@ public class SeriesApp extends Application {
     }
 
     public List<Serie> getListaSeries(){
-        this.leerBD();
+        this.leerBDSerie();
         return this.series;
     }
 
-    private void leerBD(){
+    public List<Temporada> getListaTemporadas(final int idSerie){
+        this.leerBDTemporada(idSerie);
+        return this.temporadas;
+    }
+
+    private void leerBDSerie(){
         SQLiteDatabase db = this.db.getReadableDatabase();
         this.series.clear();
 
@@ -54,33 +62,39 @@ public class SeriesApp extends Application {
         return;
     }
 
+    private void leerBDTemporada(final int idSerie){
+        SQLiteDatabase db = this.db.getReadableDatabase();
+        this.temporadas.clear();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM temporada WHERE idSerie='"+ idSerie +"'",null);
+
+        if ( cursor.moveToFirst() ) {
+            do {
+                Temporada temporada = new Temporada(cursor.getInt( 0 ), cursor.getString( 1 ),cursor.getInt(2));
+                this.temporadas.add( temporada );
+            } while( cursor.moveToNext() );
+
+            cursor.close();
+        }
+        return;
+    }
+
     public void insertarSerie(String nombre){
         SQLiteDatabase db = this.getDB();
         try{
             db.beginTransaction();
             db.execSQL("INSERT INTO serie(nombre) VALUES(?)",new String[]{nombre});
             db.setTransactionSuccessful();
-            this.leerBD();
+            this.leerBDSerie();
         }finally {
             db.endTransaction();
         }
         return;
     }
 
-    /*public int getIdByNombre(String nombre){
-        SQLiteDatabase db = this.getDB();
-        int id = 0;
-        try{
-            Cursor cursor = db.rawQuery("SELECT id FROM serie WHERE nombre =?",new String[]{nombre});
-            id = cursor.getInt(0);
-        }catch(Exception e){
-            Log.i("Error",e.toString());
-        }
-        return id;
-    }*/
 
     public void eliminarSerie(int id){
-        this.leerBD();
+        this.leerBDSerie();
         SQLiteDatabase db = this.getDB();
 
         try {
@@ -90,12 +104,12 @@ public class SeriesApp extends Application {
         }finally {
             db.endTransaction();
         }
-        this.leerBD();
+        this.leerBDSerie();
         return;
     }
 
     public void modificarSerie(int id, String texto){
-        this.leerBD();
+        this.leerBDSerie();
         SQLiteDatabase db = this.getDB();
 
         try{
@@ -106,8 +120,37 @@ public class SeriesApp extends Application {
         }finally {
             db.endTransaction();
         }
-        this.leerBD();
+        this.leerBDSerie();
         return;
+    }
+
+    public void insertarTemporada(final int cant,final int idSerie){
+        SQLiteDatabase db = this.getDB();
+        String nombre = "Temporada";
+
+        for (int i = 0;i<cant;i++){
+            try{
+                db.beginTransaction();
+                db.execSQL("INSERT INTO temporada(nombre,idSerie) VALUES(?,?)",new String[]{nombre,Integer.toString( idSerie )});
+                //db.execSQL("INSERT INTO temporada(nombre,idSerie) VALUES(Prueba,1)");
+                db.setTransactionSuccessful();
+            }finally {
+                db.endTransaction();
+            }
+        }
+        this.leerBDTemporada(idSerie);
+    }
+
+    public  void eliminarTemporadas(){
+        SQLiteDatabase db = this.getDB();
+        try{
+            db.beginTransaction();
+            db.execSQL("DELETE FROM temporada");
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+
     }
 
 }

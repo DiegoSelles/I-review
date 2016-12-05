@@ -1,5 +1,6 @@
 package com.example.diego.i_review.view;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,10 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<String> list;
+    private List<Serie> list;
     private ArrayAdapter<Serie> listAdapter;
     private SeriesApp app;
-    //private Serie serie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
         Button btAdd = (Button) this.findViewById(R.id.btadd);
         final ListView listSeries = (ListView) this.findViewById(R.id.listSeries);
 
-        this.list = new ArrayList<String>();
+        this.list = app.getListaSeries();
         this.listAdapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_selectable_list_item,
-                app.getListaSeries()
+                this.list
         );
 
 
@@ -51,8 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
         listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> v1, View v, int op, long x) {
-                MainActivity.this.startActivity(new Intent(MainActivity.this,SeriesActivity.class));
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this,SeriesActivity.class);
+                Serie serie = app.getListaSeries().get( position );
+                int idSerie = serie.getId();
+                intent.putExtra("idSerie",idSerie);
+                MainActivity.this.startActivity(intent);
+
             }
         });
 
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 final String text = edText.getText().toString();
                 app.insertarSerie( text );
+                MainActivity.this.list = app.getListaSeries();
                 MainActivity.this.listAdapter.notifyDataSetChanged();
             }
         });
@@ -156,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if( position >= 0) {
                     app.eliminarSerie(id);
+                    //MainActivity.this.list.remove(position);
                     MainActivity.this.listAdapter.notifyDataSetChanged();
                 }else{
                     dlg.setMessage("No se pudo borrar");
@@ -167,19 +174,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void onPause(){
+  /*  public void onPause(){
         super.onPause();
         SharedPreferences.Editor saver = this.getPreferences( Context.MODE_PRIVATE ).edit();
-        saver.putStringSet( "list", new HashSet<String>( this.list ) );
+        saver.putStringSet( "list", new HashSet<Serie>( this.list ) );
         saver.apply();
-    }
+    }*/
 
 
-    public void OnResume(){
+   /* public void OnResume(){
         super.onResume();
         SharedPreferences loader = this.getPreferences( Context.MODE_PRIVATE );
         this.list.clear();
         this.list.addAll( loader.getStringSet( "list", new HashSet<String>() ) );
         this.listAdapter.notifyDataSetChanged();
-    }
+    }*/
 }

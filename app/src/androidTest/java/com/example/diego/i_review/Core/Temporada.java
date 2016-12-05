@@ -38,4 +38,7 @@ public class Temporada {
     public void setIdSerie(int idSerie){
         this.idSerie = idSerie;
     }
+    public String toString(){
+        return this.getNombre() + ". id.:" + this.getId() + ".idSerie:" + this.getIdSerie();
+    }
 }

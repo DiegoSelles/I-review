@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class SqlIO extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ListaSeries";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 6;
 
     public SqlIO(Context context)
     {
@@ -26,6 +26,12 @@ public class SqlIO extends SQLiteOpenHelper {
                     + "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                     + "nombre string(255), "
                     + "valoracion int)");
+            db.execSQL(  "CREATE TABLE IF NOT EXISTS temporada( "
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "nombre string(255), "
+                    + "idSerie INTEGER,"
+                    + "FOREIGN KEY(idSerie) REFERENCES serie(id))");
+
             db.setTransactionSuccessful();
         }finally {
             db.endTransaction();
@@ -39,12 +45,11 @@ public class SqlIO extends SQLiteOpenHelper {
         try {
             db.beginTransaction();
             db.execSQL( "DROP TABLE IF EXISTS serie");
+            db.execSQL( "DROP TABLE IF EXISTS temporada");
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
-
         this.onCreate( db );
-
     }
 }

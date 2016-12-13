@@ -7,11 +7,13 @@ package com.example.diego.i_review.Core;
 public class Temporada {
     private int id;
     private String nombre;
+    private int numTemp;
     private int idSerie;
 
-    public Temporada(int id,String nombre,int idSerie){
+    public Temporada(int id,String nombre,int numTemp,int idSerie){
         this.id = id;
         this.nombre = nombre;
+        this.numTemp = numTemp;
         this.idSerie = idSerie;
     }
 
@@ -23,6 +25,10 @@ public class Temporada {
         return nombre;
     }
 
+    public int getNumTemp(){
+        return numTemp;
+    }
+
     public int getIdSerie(){
         return idSerie;
     }
@@ -31,14 +37,7 @@ public class Temporada {
         this.id = id;
     }
 
-    public void setNombre(String Nombre){
-        this.nombre = nombre;
-    }
-
-    public void setIdSerie(int idSerie){
-        this.idSerie = idSerie;
-    }
     public String toString(){
-        return this.getNombre() + ". id.:" + this.getId() + ".idSerie:" + this.getIdSerie();
+        return this.getNombre() + " " + this.getNumTemp();
     }
 }

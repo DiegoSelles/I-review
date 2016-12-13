@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.diego.i_review.Core.Capitulo;
 import com.example.diego.i_review.Core.Serie;
 import com.example.diego.i_review.Core.SqlIO;
 import com.example.diego.i_review.Core.Temporada;
@@ -21,11 +22,13 @@ public class SeriesApp extends Application {
     private SqlIO db;
     private List<Serie> series;
     private List<Temporada> temporadas;
+    private List<Capitulo> capitulos;
 
     @Override
     public void onCreate(){
         this.series = new ArrayList<>();
         this.temporadas = new ArrayList<>();
+        this.capitulos = new ArrayList<>();
         this.db = new SqlIO(this);
     }
 
@@ -35,16 +38,25 @@ public class SeriesApp extends Application {
         return this.db.getWritableDatabase();
     }
 
+    //Listado de series leyendo la bd y devolviendo objetos de tipo serie.
     public List<Serie> getListaSeries(){
         this.leerBDSerie();
         return this.series;
     }
 
+    //Listado de temporadas según la serie leyendo la bd y devolviendo objetos de tipo temporadas.
     public List<Temporada> getListaTemporadas(final int idSerie){
         this.leerBDTemporada(idSerie);
         return this.temporadas;
     }
 
+    //Listado de capítulos según la temporada leyendo la bd y devolviendo objetos de tipo capítulos.
+    public List<Capitulo> getListaCapitulos(final int idTemporada){
+        this.leerBDCapitulos(idTemporada);
+        return this.capitulos;
+    }
+
+    //Lectura de la bd para la tabla series mediante un cursor.
     private void leerBDSerie(){
         SQLiteDatabase db = this.db.getReadableDatabase();
         this.series.clear();
@@ -62,6 +74,7 @@ public class SeriesApp extends Application {
         return;
     }
 
+    //Lectura de la bd para la tabla temporadas mediante un cursor teniendo en cuenta el idSerie.
     private void leerBDTemporada(final int idSerie){
         SQLiteDatabase db = this.db.getReadableDatabase();
         this.temporadas.clear();
@@ -70,7 +83,7 @@ public class SeriesApp extends Application {
 
         if ( cursor.moveToFirst() ) {
             do {
-                Temporada temporada = new Temporada(cursor.getInt( 0 ), cursor.getString( 1 ),cursor.getInt(2));
+                Temporada temporada = new Temporada(cursor.getInt( 0 ), cursor.getString( 1 ),cursor.getInt( 2 ),cursor.getInt( 3 ));
                 this.temporadas.add( temporada );
             } while( cursor.moveToNext() );
 
@@ -78,6 +91,25 @@ public class SeriesApp extends Application {
         }
         return;
     }
+
+    //Lectura de la bd para la tabla capítulos mediante un cursor teniendo en cuenta el idTemporada.
+    private void leerBDCapitulos(final int idTemporada){
+        SQLiteDatabase db = this.db.getReadableDatabase();
+        this.capitulos.clear();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM capitulo WHERE idTemporada='" + idTemporada + "'",null);
+
+        if ( cursor.moveToFirst() ) {
+            do {
+                Capitulo capitulo = new Capitulo(cursor.getInt( 0 ), cursor.getString( 1 ),cursor.getInt(2),cursor.getString(3),cursor.getInt(4),cursor.getInt(5));
+                this.capitulos.add( capitulo );
+            } while( cursor.moveToNext() );
+
+            cursor.close();
+        }
+        return;
+    }
+
 
     public void insertarSerie(String nombre){
         SQLiteDatabase db = this.getDB();
@@ -128,11 +160,10 @@ public class SeriesApp extends Application {
         SQLiteDatabase db = this.getDB();
         String nombre = "Temporada";
 
-        for (int i = 0;i<cant;i++){
+        for (int i = 1;i <= cant;i++){
             try{
                 db.beginTransaction();
-                db.execSQL("INSERT INTO temporada(nombre,idSerie) VALUES(?,?)",new String[]{nombre,Integer.toString( idSerie )});
-                //db.execSQL("INSERT INTO temporada(nombre,idSerie) VALUES(Prueba,1)");
+                db.execSQL("INSERT INTO temporada(nombre,numTemp,idSerie) VALUES(?,?,?)",new String[]{nombre,Integer.toString( i ),Integer.toString( idSerie )});
                 db.setTransactionSuccessful();
             }finally {
                 db.endTransaction();
@@ -141,16 +172,77 @@ public class SeriesApp extends Application {
         this.leerBDTemporada(idSerie);
     }
 
-    public  void eliminarTemporadas(){
+    public void eliminarTemporadas(final int idSerie){
         SQLiteDatabase db = this.getDB();
         try{
             db.beginTransaction();
-            db.execSQL("DELETE FROM temporada");
+            db.execSQL("DELETE FROM temporada WHERE idSerie=?",new Integer[]{idSerie});
             db.setTransactionSuccessful();
         }finally {
             db.endTransaction();
         }
+    }
 
+    public void insertarCapitulo(final int cant,final int idTemporada) {
+        SQLiteDatabase db = this.getDB();
+        String nombre = "Capitulo";
+
+        for (int i = 1; i <= cant; i++) {
+            try {
+                db.beginTransaction();
+                db.execSQL("INSERT INTO capitulo(nombre,numCap,idTemporada) VALUES(?,?,?)", new String[]{nombre,Integer.toString( i ), Integer.toString(idTemporada)});
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+        this.leerBDCapitulos(idTemporada);
+    }
+
+    public  void eliminarCapitulos(final int idTemporada){
+        SQLiteDatabase db = this.getDB();
+        try{
+            db.beginTransaction();
+            db.execSQL("DELETE FROM capitulo WHERE idTemporada=?",new Integer[]{idTemporada});
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
+        }
+    }
+
+    public void añadirComentario(final int idCapitulo,String text){
+        SQLiteDatabase db = this.getDB();
+        try{
+            db.beginTransaction();
+            db.execSQL("UPDATE capitulo SET comentario ='" + text + "' WHERE id= '"+ idCapitulo+ "'");
+            db.setTransactionSuccessful();
+        }finally{
+            db.endTransaction();
+        }
+        this.getCapituloById(idCapitulo);
+    }
+
+    //Método que cambia a 0 si el capitulo no se ha visto o a 1 en caso contrario.
+    public void capituloVisto(final int idCapitulo,int change){
+        SQLiteDatabase db = this.db.getReadableDatabase();
+        try{
+            db.beginTransaction();
+            db.execSQL("UPDATE capitulo SET visto ='" + change + "' WHERE id= '"+ idCapitulo+ "'");
+            db.setTransactionSuccessful();
+        }finally{
+            db.endTransaction();
+        }
+    }
+
+    //Devuelve un objeto de tipo capitulo según un id.
+    public Capitulo getCapituloById(final int idCapitulo){
+        SQLiteDatabase db = this.db.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM capitulo WHERE id='" + idCapitulo + "'",null);
+        cursor.moveToFirst();
+        Capitulo capitulo = new Capitulo(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getString(3),cursor.getInt(4), cursor.getInt(5));
+
+        return capitulo;
     }
 
 }

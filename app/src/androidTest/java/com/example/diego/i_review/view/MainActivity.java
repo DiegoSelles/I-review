@@ -1,13 +1,13 @@
 package com.example.diego.i_review.view;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.diego.i_review.Core.Serie;
 import com.example.diego.i_review.R;
@@ -34,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
+        //Colocar icono en la Action Bar
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setIcon(R.mipmap.ic_launcher);
+
         this.app = (SeriesApp) this.getApplication();
 
         Button btAdd = (Button) this.findViewById(R.id.btadd);
@@ -49,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         listSeries.setAdapter(this.listAdapter);
 
+        //Al hacer clic en la serie pasamos al activity donde se gestionan las temporadas.
         listSeries.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -61,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Mediante un clic largo podemos eliminar o modificar el nombre de una serie.
         listSeries.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -77,18 +85,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        if(listAdapter.getCount() == 0){
+            Toast t =Toast.makeText(getApplicationContext(),"Añade las series que estas viendo mediante el boton añadir.",Toast.LENGTH_LONG);
+            t.setGravity(Gravity.CENTER,0,0);
+            t.show();
+        }
+
     }
 
     //Crea el menu cuando se pulse en la opcion
+    @Override
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
         this.getMenuInflater().inflate( R.menu.main_menu, menu);
         return true;
     }
 
-    //Recorre del menu para saber cual es la que hemos escogido
+    //Recorre el menu para saber cual es la opcion que hemos escogido,buscar una serie en la web,tener una lista de pendientes o salir.
+    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch ( menuItem.getItemId()){
+            case R.id.opBuscar:
+                Intent intentBuscar = new Intent(MainActivity.this,favoritasActivity.class);
+                MainActivity.this.startActivity(intentBuscar);
+                break;
+            case R.id.opPendientes:
+                Intent intentPendientes = new Intent(MainActivity.this,DeseadasActivity.class);
+                MainActivity.this.startActivity(intentPendientes);
             case R.id.opSalir:
                 finish();
         }
@@ -114,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         dlg.create().show();
     }
 
-    //Funcion que añade a la lista una serie
+    //Funcion que añade a la lista una serie.
     private void onAdd(){
         final EditText edText = new EditText( this );
 
@@ -130,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.listAdapter.notifyDataSetChanged();
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton("Cancelar", null);
         builder.create().show();
     }
 
@@ -172,21 +195,4 @@ public class MainActivity extends AppCompatActivity {
         dlg.setNegativeButton("No", null);
         dlg.create().show();
     }
-
-
-  /*  public void onPause(){
-        super.onPause();
-        SharedPreferences.Editor saver = this.getPreferences( Context.MODE_PRIVATE ).edit();
-        saver.putStringSet( "list", new HashSet<Serie>( this.list ) );
-        saver.apply();
-    }*/
-
-
-   /* public void OnResume(){
-        super.onResume();
-        SharedPreferences loader = this.getPreferences( Context.MODE_PRIVATE );
-        this.list.clear();
-        this.list.addAll( loader.getStringSet( "list", new HashSet<String>() ) );
-        this.listAdapter.notifyDataSetChanged();
-    }*/
 }

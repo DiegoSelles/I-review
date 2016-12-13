@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">I-review</string>
+    <string name="listview">Lista series</string>
+    <string name="btaddSeries">Añadir Serie</string>
+    <string name="btaddTemporadas">Añadir Temporadas</string>
+    <string name="deleteTemp">Borrar temporadas</string>
+    <string name="btaddCapitulos">Añadir Capitulos</string>
+    <string name="deleteCap">Borrar capítulos</string>
+    <string name="btaddComentario">Añadir Comentario</string>
+    <string name="search">Buscar serie</string>
+    <string name="pending">Lista pendientes</string>
+    <string name="back">Atrás</string>
+    <string name="exit">Salir</string>
+    <string name="title_activity_series">SeriesActivity</string>
+    <string name="label_default_result">Error</string>
 </resources>

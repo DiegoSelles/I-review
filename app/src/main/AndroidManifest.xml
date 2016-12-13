@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.diego.i_review">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:name="com.example.diego.i_review.view.SeriesApp"
+        android:name=".view.SeriesApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,8 +18,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".view.SeriesActivity"></activity>
+        <activity android:name=".view.SeriesActivity" />
+        <activity android:name=".view.TemporadasActivity" />
+        <activity android:name=".view.CommentActivity" />
+        <activity android:name=".view.favoritasActivity" />
+        <activity android:name=".view.DeseadasActivity"></activity>
     </application>
 
 </manifest>
